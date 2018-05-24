@@ -23,6 +23,7 @@ github
 
 #. 搜索不用自己管理了，可以利用google,github自身的搜索
 #. 可以用项目ticket的看板自动管理
+#. github.io 可以灵活的配置
 
 缺点
 ----
