@@ -1,0 +1,46 @@
+{
+  "host": "localhost",
+  "port": 3030,
+  "public": "../public/",
+  "paginate": {
+    "default": 10,
+    "max": 50
+  },
+  "mongodb": "mongodb://localhost:27017/explore_questions",
+  "authentication": {
+    "secret": "119d268898681f9e739a514c90bb3af70f7a77c87c7c74f985cff418e46e4448fb7c70139195f5acb9e39d504f351311f79cd3ec64871393ed14d47d4abdb99de8d49c4337542b6161de06a2bd0b535b69939c803e009d091b6ba3a4fc2dffe7744e3202f439756cfe52a9af45e0ef1ea9a0369b6dfdc29209be21919a5d3e87e64f6e8edb42f774a2070a5cbc10f5baf6ac583e4766f313bf51c9121ef94c4f82974ec013bf267b9f2c102e315d0b15656e3c95947c16734771f298c9723d1967a6b4996526ad9d56c23be7f493a57ab11356f32766d115aafea576991b4aa7a7ce3c0de471b35cb572d4eb14290bdef2de493f9da0372b7a55671b53b7bb8a",
+    "strategies": [
+      "jwt",
+      "local"
+    ],
+    "path": "/authentication",
+    "service": "users",
+    "jwt": {
+      "header": {
+        "typ": "access"
+      },
+      "audience": "https://yourdomain.com",
+      "subject": "anonymous",
+      "issuer": "feathers",
+      "algorithm": "HS256",
+      "expiresIn": "1d"
+    },
+    "local": {
+      "entity": "user",
+      "usernameField": "email",
+      "passwordField": "password"
+    },
+    "auth0": {
+      "clientID": "your auth0 client id",
+      "clientSecret": "your auth0 client secret",
+      "successRedirect": "/",
+      "domain": "mydomain.auth0.com"
+    },
+    "cookie": {
+      "enabled": true,
+      "name": "feathers-jwt",
+      "httpOnly": false,
+      "secure": false
+    }
+  }
+}
