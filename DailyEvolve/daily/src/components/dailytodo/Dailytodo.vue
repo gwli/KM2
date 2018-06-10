@@ -7,15 +7,32 @@
               <div class="col-md-12">
                 <vuestic-widget :headerText="post.title">
                   <vuestic-medium-editor @initialized="handleEditorInitialization" :editor-options="editorOptions">
+                    <h1> {{ post.title }}  <button type="button"> <span aria-hidden="true" class="glyphicon glyphicon-edit" style="font-size: 30px;"></span></button>
+              </h1>
+                    <hr/>
                     <blockquote class="blockquote">
-                    <p>description: {{post.description}}</p>
+                    <span v-html="description(post.description)""> </span>
+                    <div>
+                       <vue-markdown :show='false'> * [ ] do test 1</vue-markdown>
+                    </div>
                     </blockquote>
                     <hr/>
-                    <b class="default-selection">status</b>{{post.status}}  labels: {{post.tags}} Date: {{post.due_date}}
+                    <b class="default-selection" color='green'> {{post.status}} </b>
+                    
+                    <span aria-hidden="true" class="entypo entypo-tag" style="font-size: 30px;">: {{ post.tags }}</span>
+                    <hr/> <i class='entypo entypo-calendar' />created: {{post.due_date}}, edited: 2018-06-10
+                    
                   </vuestic-medium-editor>
-                    <div> Weight: {{post.Weight}} <button>vote</button></div>
+                    <div> Weight: {{post.Weight}} <i class='entypo entypo-star' style="font-szie: 30px;"></i> 
+                    <button>v<i class='entypo entypo-thumbs-up' style="font-szie: 30px;"></i></button></div>
                 </vuestic-widget>
               </div>
+            </div>
+            <div>
+              <blockquote class="blockquote">
+                
+              <span v-html="description(post.description)""> </span>
+              </blockquote>
             </div>
           </div>
       </li>
@@ -29,53 +46,16 @@
   </div>
 </template>
 
-<script>
-  export default {
-    name: 'medium-editor',
 
-    data () {
-      return {
-        editor: {},
-        editorOptions: {
-          buttonLabels: 'fontawesome',
-          autoLink: true,
-          toolbar: {
-            buttons: [
-              'bold',
-              'italic',
-              'underline',
-              'anchor',
-              'h1',
-              'h2',
-              'h3'
-            ]
-          }
-        }
-      }
-    },
-
-    methods: {
-      handleEditorInitialization (editor) {
-        this.editor = editor
-        this.$nextTick(() => {
-          this.highlightSampleText()
-        })
-      },
-
-      highlightSampleText () {
-        let sampleText = document.getElementsByClassName('default-selection')[0]
-        this.editor.selectElement(sampleText)
-      }
-    }
-  }
-</script>
-
-<style lang="scss">
-
-</style>
 
 <script>
   import axios from 'axios'
+  import MarkdownIt from 'markdown-it'
+  import VueMarkdown from 'vue-markdown'
+  var md = new MarkdownIt({
+    html: true,
+    linkify: true,
+    typographer: true})
   
   export default {
     data () {
@@ -100,8 +80,14 @@
         }
       }
     },
-  
+    components: {
+      VueMarkdown
+    },
     methods: {
+      description (text) {
+        return md.render(text)
+      },
+
       handleEditorInitialization (editor) {
         this.editor = editor
         this.$nextTick(() => {
