@@ -11,9 +11,9 @@
               </h1>
                     <hr/>
                     <blockquote class="blockquote">
-                    <span v-html="description(post.description)""> </span>
+                    
                     <div>
-                       <vue-markdown :show='false'> * [ ] do test 1</vue-markdown>
+                       <vue-markdown :show='true'>{{ post.description }}</vue-markdown>
                     </div>
                     </blockquote>
                     <hr/>
@@ -27,12 +27,6 @@
                     <button>v<i class='entypo entypo-thumbs-up' style="font-szie: 30px;"></i></button></div>
                 </vuestic-widget>
               </div>
-            </div>
-            <div>
-              <blockquote class="blockquote">
-                
-              <span v-html="description(post.description)""> </span>
-              </blockquote>
             </div>
           </div>
       </li>
