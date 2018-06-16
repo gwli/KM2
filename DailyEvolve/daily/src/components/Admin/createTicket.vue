@@ -10,6 +10,7 @@
             <label for="description">Description:</label>
             <div class="form-group">
                 <textarea class="form-control" rows="5" id="description" v-model="description"></textarea>
+                <vue-markdown> {{ description }} </vue-markdown>
             </div>
 
             <div class="row input-group mb-3">
@@ -30,7 +31,6 @@
 
 <script>
 import VueMarkdown from 'vue-markdown'
-import VueMarkdownEditor from 'vue-markdown-editor'
 import axios from 'axios'
 
 export default {
@@ -52,7 +52,7 @@ export default {
         title: this.title,
         description: this.description,
         owner: 'lgw',
-        weight: 0,
+        vote: 0,
         spendEffort: 0,
         estimateEffort: 0,
         due_date: '',
@@ -70,8 +70,7 @@ export default {
     ticket: Object
   },
   components: {
-    VueMarkdown,
-    VueMarkdownEditor
+    VueMarkdown
   },
   created () {
   }
