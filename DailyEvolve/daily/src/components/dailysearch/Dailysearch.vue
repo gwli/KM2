@@ -1,8 +1,6 @@
 <template>
-   <div class="ticket">
-    <ul class="tree-list">
-       <ticket-tree></ticket-tree>
-    </ul>
+  <div>
+    <ticket-tree></ticket-tree>
   </div>
 </template>
 

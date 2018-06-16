@@ -96,7 +96,8 @@
     },
     // Fetches posts when the component is created.
     created () {
-      axios.get(`http://10.19.226.116:3030/tickets`)
+      axios.get(`http://10.19.226.116:3030/answers`)
+      // axios.get(`http://10.19.226.116:3030/tickets`)
       .then(response => {
         // JSON responses are automatically parsed.
         this.posts = response.data.data

@@ -7,17 +7,24 @@ import maps from './maps'
 import tables from './tables'
 import auth from './auth'
 import extra from './extra'
+import dailytodo from './dailytodo'
+import dailysearch from './dailysearch'
+import createticket from './createticket'
 
 const state = {
   items: [
     dashboard,
     statistics,
     forms,
+    dailytodo,
+    dailysearch,
+    createticket,
     tables,
     ui,
     extra,
     auth,
     maps
+
   ]
 }
 
