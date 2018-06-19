@@ -1,7 +1,7 @@
 <template>
   <ul>
-    <li v-for="ticket of ticketlist">
-      <ticket-tree :ticket="ticket"></ticket-tree>
+    <li v-for="(ticket,idx) of ticketlist">
+      <ticket-tree :id="idx" :ticket="ticket" @deleteTicket="deleteTicket($event)"></ticket-tree>
     </li>
   </ul>
 </template>
@@ -17,6 +17,20 @@ export default {
   data () {
     return {
       ticketlist: Object
+    }
+  },
+  methods: {
+    deleteTicket (idx) {
+      var tid = this.ticketlist[idx]._id
+      axios.delete(`http://10.19.226.116:3030/tickets/${tid}`)
+      .then(repsonse => {
+        console.log('deleteticket success')
+        console.log(tid)
+        this.ticketlist.splice(idx, 1)
+      })
+      .catch(e => {
+        console.log(e)
+      })
     }
   },
   components: {

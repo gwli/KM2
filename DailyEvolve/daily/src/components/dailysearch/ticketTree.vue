@@ -2,7 +2,7 @@
    <div>
       <div class="row border border-primary">
         <div class="col-sm-3">
-        <button class="btn-primary" type="button"  @click="deleteTicket(ticket._id)">Delete</button>
+        <button class="btn-primary" type="button"  @click="deleteMe">Delete</button>
         <button class="btn-secondary btn-xs" 
                 type="button"
                 @click="upvoteTicket(ticket)">
@@ -103,39 +103,30 @@ export default {
     }
   },
   props: {
-    ticket: Object
+    ticket: Object,
+    id: Number
   },
   computed: {
-    Action: function() {
-      if (this.ticket.status === "new") {
-        return "close"
+    Action: function () {
+      if (this.ticket.status === 'new') {
+        return 'close'
       } else {
-        return "Reopen"
+        return 'Reopen'
       }
-
-    } 
+    }
   },
   components: {
     VueMarkdown
   },
   methods: {
-    deleteTicket (idx) {
-      var tid = this.ticket._id
-      axios.delete(`http://10.19.226.116:3030/tickets/${tid}`)
-      .then(repsonse => {
-        console.log('deleteticket success')
-        console.log(tid)
-      })
-      .catch(e => {
-        console.log(tid)
-        console.log(e)
-      })
+    deleteMe () {
+      this.$emit('deleteTicket', this.id)
     },
     deleteAnswer (idx) {
       var aid = this.answers[idx]._id
       axios.delete(`http://10.19.226.116:3030/answers/${aid}`)
       .then(repsonse => {
-        console.log('deleteticket success')
+        console.log('delete answer success')
         console.log(aid)
         this.answers.splice(idx, 1)
       })
@@ -210,11 +201,10 @@ export default {
       })
     },
     changeStatus (ticket) {
-      var status = ''
-      if (ticket.status.toLowerCase() === 'new'  ) {
-          ticket.status = "close"
+      if (ticket.status.toLowerCase() === 'new') {
+        ticket.status = 'close'
       } else {
-          ticket.status = "new"
+        ticket.status = 'new'
       }
       var url = `http://10.19.226.116:3030/tickets/${ticket._id}`
       console.log(url)
@@ -223,19 +213,19 @@ export default {
       })
       .then(response => {
         // JSON responses are automatically parsed.
-        console.log(`set test answser:${answer._id} ${response}`)
+        console.log(`set test answser:${ticket._id} ${response}`)
       })
       .catch(e => {
         this.errors_message.push(e)
         console.log(e)
       })
     },
-    setBest (answer) { 
-      answer.isbest = 1  
+    setBest (answer) {
+      answer.isbest = 1
       var url = `http://10.19.226.116:3030/answers/${answer._id}`
       console.log(url)
       axios.patch(url, {
-        "isbest": 1
+        'isbest': 1
       })
       .then(response => {
         // JSON responses are automatically parsed.
@@ -246,11 +236,11 @@ export default {
         console.log(e)
       })
     },
-    editTicket (ticket) { 
+    editTicket (ticket) {
       var url = `http://10.19.226.116:3030/tickets/${ticket._id}`
       console.log(url)
       axios.patch(url, {
-        "description": ticket.description
+        'description': ticket.description
       })
       .then(response => {
         // JSON responses are automatically parsed.
@@ -261,11 +251,11 @@ export default {
         console.log(e)
       })
     },
-    addComments (answer) { 
+    addComments (answer) {
       var url = `http://10.19.226.116:3030/answers/${answer._id}`
       console.log(url)
       axios.patch(url, {
-        "comments": answer.comments
+        'comments': answer.comments
       })
       .then(response => {
         // JSON responses are automatically parsed.
