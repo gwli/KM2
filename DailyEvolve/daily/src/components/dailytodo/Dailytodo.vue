@@ -1,42 +1,106 @@
 <template>
-   <div>
-    <ul v-if="posts && posts.length">
-      <li v-for="post of posts">
-          <div class="medium-editor">
-            <div class="row">
-              <div class="col-md-12">
-                <vuestic-widget :headerText="post.title">
-                  <vuestic-medium-editor @initialized="handleEditorInitialization" :editor-options="editorOptions">
-                    <h1> {{ post.title }}  <button type="button"> <span aria-hidden="true" class="glyphicon glyphicon-edit" style="font-size: 30px;"></span></button>
-              </h1>
-                    <hr/>
-                    <blockquote class="blockquote">
-                    
-                    <div>
-                       <vue-markdown :show='true'>{{ post.description }}</vue-markdown>
-                    </div>
-                    </blockquote>
-                    <hr/>
-                    <b class="default-selection" color='green'> {{post.status}} </b>
-                    
-                    <span aria-hidden="true" class="entypo entypo-tag" style="font-size: 30px;">: {{ post.tags }}</span>
-                    <hr/> <i class='entypo entypo-calendar' />created: {{post.due_date}}, edited: 2018-06-10
-                    
-                  </vuestic-medium-editor>
-                    <div> Weight: {{post.Weight}} <i class='entypo entypo-star' style="font-szie: 30px;"></i> 
-                    <button>v<i class='entypo entypo-thumbs-up' style="font-szie: 30px;"></i></button></div>
-                </vuestic-widget>
-              </div>
+  <div class="card">
+    <div class="card-header">
+      <div class="row">
+        <div class="col-sm-7">
+        <button class="btn-primary" type="button"  @click="deleteMe">Delete</button>
+        <button class="btn-secondary btn-xs" 
+                type="button"
+                @click="upvoteTicket(ticket)">
+            <span aria-hidden="true" class="glyphicon glyphicon-thumbs-up"></span>
+        </button>
+           <span class="badge badge-pill badge-primary">{{ ticket.vote }}</span>
+        <button class="btn-secondary btn-xs" 
+                type="button"
+                @click="downvoteTicket(ticket)">
+            <span aria-hidden="true" class="glyphicon glyphicon-thumbs-down"></span>
+        </button>
+           <span class="badge badge-pill badge-primary">{{ ticket.status }}</span>
+        </div>
+        <div class="col-sm-3">
+        <button  class='btn-secondary btn-xs' @click="changeStatus(ticket)">{{ Action }}</span>
+        </button>
+        <button class="btn-secondary" type="button" @click="editTicket(ticket)">Edit</button>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+        <h5 class="card-title">  {{ ticket.title }} </h5>
+        <div class="row description">
+          <div class="cl-sm-12">
+            <div>
+              <vue-markdown> {{ ticket.description }}</vue-markdown>
             </div>
           </div>
-      </li>
-    </ul>
+        </div>
+        <div class="row tag">
+          <div class="col-sm-1">
+            <button class="btn-secondary btn-xs" type="button">
+              <span aria-hidden="true" class="glyphicon glyphicon-tags"></span>
+            </button>
+          </div>
+          <div class="col-sm-7">
+            {{ ticket.tags }}
+          </div>
+          <div class="col-sm-2">
+            <p> Assign: {{ ticket.assgin }} </p>
+          </div>
+          <div class="col-sm-2">
+            <p> Owner: {{ ticket.owner }} </p>
+          </div>
+        </div>
+        <hr>
+        <button class="btn-secondary" type="button">Add sub ticket</button>
+        <router-link :to="{name: 'CreateTicket', params:{parentId:ticket._id}}">Add sub ticket</router-link>
+        <div class="row children">
+          <ul>
+            <li v-for="ele of ticket.children"> {{ ele}} </li>
+          </ul>
+        </div>
+        <hr>
+      </div>
+      <div class="p-3 border border-secondary comments" v-if="answers && answers.length">
+          <div class="row" v-for="(answer,idx) of answers">
+            <div class="col-sm-4">
+              <button class="btn-primary" type="button" @click="deleteAnswer(idx)">Del</button>
+                 <span class="badge badge-pill badge-primary">
+                 <span v-if="answer.isbest === 1" aria-hidden="true" class="glyphicon glyphicon-ok"></span>
+                 </span>
+              <button class="btn-secondary btn-xs" 
+                      type="button"
+                      @click="upvoteAnswer(answer)">
+                  <span aria-hidden="true" class="glyphicon glyphicon-thumbs-up"></span>
+              </button>
+                 <span class="badge badge-pill badge-primary">{{ answer.vote }}</span>
+              <button class="btn-secondary btn-xs"
+                      type="button"
+                      @click="downvoteAnswer(answer)">
+                  <span aria-hidden="true" class="glyphicon glyphicon-thumbs-down"></span>
+              </button>
+              <button 
+                 class="btn-secondary btn-xs" 
+                 type="button"
+                 @click="setBest(answer)">
+                  <span aria-hidden="true" class="glyphicon glyphicon-ok"></span>
+              </button>
+              </div>
+              <div class="col-sm-8">
+                <h3> {{ answer.title }} </h3>
+                <a class="font-weight-normal" :href="answer.url"> {{ answer.abstract }} </a>
+                <vue-markdown> {{ answer.comments }} </vue-markdown>
 
-    <ul v-if="errors && errors.length">
-      <li v-for="error of errors">
-        {{error.message}}
-      </li>
-    </ul>
+                <div class="input-group mb-3">
+                   <input type="text" class="form-control" v-model="answer.comments">
+                 </div>
+                 <button class="btn-primary" type="button" @click="addComments(answer)">Add Comments</button>
+              </div>
+          </div>
+    </div>
+    <div class="card-footer">
+      <a href="#" class="card-link">Card Link </a>
+      <a href="#" class="card-link">another link</a>
+    </div>
+
   </div>
 </template>
 
@@ -44,64 +108,207 @@
 
 <script>
   import axios from 'axios'
-  import MarkdownIt from 'markdown-it'
+  import CreateTicket from '../Admin/createTicket'
   import VueMarkdown from 'vue-markdown'
-  var md = new MarkdownIt({
-    html: true,
-    linkify: true,
-    typographer: true})
-  
+
   export default {
     data () {
       return {
         posts: [],
+        ticket: Object,
+        answers: [],
         errors_message: [],
-        editor: {},
-        editorOptions: {
-          buttonLabels: 'fontawesome',
-          autoLink: true,
-          toolbar: {
-            buttons: [
-              'bold',
-              'italic',
-              'underline',
-              'anchor',
-              'h1',
-              'h2',
-              'h3'
-            ]
-          }
-        }
       }
     },
     components: {
-      VueMarkdown
+      VueMarkdown,
+      CreateTicket
+    },
+    computed: {
+      Action: function () {
+        if (this.ticket.status === 'new') {
+          return 'close'
+        } else {
+          return 'Reopen'
+        }
+      }
     },
     methods: {
-      description (text) {
-        return md.render(text)
+      deleteMe () {
+        this.$emit('deleteTicket', this.id)
       },
-
-      handleEditorInitialization (editor) {
-        this.editor = editor
-        this.$nextTick(() => {
-          this.highlightSampleText()
+      deleteAnswer (idx) {
+        var aid = this.answers[idx]._id
+        axios.delete(`http://10.19.226.116:3030/answers/${aid}`)
+        .then(repsonse => {
+          console.log('delete answer success')
+          console.log(aid)
+          this.answers.splice(idx, 1)
+        })
+        .catch(e => {
+          console.log(e)
         })
       },
-
-      highlightSampleText () {
-        let sampleText = document.getElementsByClassName('default-selection')[0]
-        this.editor.selectElement(sampleText)
+      upvoteTicket (ticket) {
+        ticket.vote -= 0
+        ticket.vote += 1
+        var url = `http://10.19.226.116:3030/tickets/${ticket._id}`
+        console.log(url)
+        axios.patch(url, {
+          vote: ticket.vote
+        })
+        .then(response => {
+          // JSON responses are automatically parsed.
+          console.log(`upvote ticket:${ticket._id} ${response}`)
+        })
+        .catch(e => {
+          this.errors_message.push(e)
+          console.log(e)
+        })
+      },
+      downvoteTicket (ticket) {
+        ticket.vote -= 1
+        var url = `http://10.19.226.116:3030/tickets/${ticket._id}`
+        console.log(url)
+        axios.patch(url, {
+          vote: ticket.vote
+        })
+        .then(response => {
+          // JSON responses are automatically parsed.
+          console.log(`upvote ticket:${ticket._id} ${response}`)
+        })
+        .catch(e => {
+          this.errors_message.push(e)
+          console.log(e)
+        })
+      },
+      upvoteAnswer (answer) {
+        answer.vote -= 0
+        answer.vote += 1
+        var url = `http://10.19.226.116:3030/answers/${answer._id}`
+        console.log(url)
+        axios.patch(url, {
+          vote: answer.vote
+        })
+        .then(response => {
+          // JSON responses are automatically parsed.
+          console.log(`upvote answer:${answer._id} ${response}`)
+        })
+        .catch(e => {
+          this.errors_message.push(e)
+          console.log(e)
+        })
+      },
+      downvoteAnswer (answer) {
+        answer.vote -= 1
+        var url = `http://10.19.226.116:3030/answers/${answer._id}`
+        console.log(url)
+        axios.patch(url, {
+          vote: answer.vote
+        })
+        .then(response => {
+          // JSON responses are automatically parsed.
+          console.log(`upvote answer:${answer._id} ${response}`)
+        })
+        .catch(e => {
+          this.errors_message.push(e)
+          console.log(e)
+        })
+      },
+      changeStatus (ticket) {
+        if (ticket.status.toLowerCase() === 'new') {
+          ticket.status = 'close'
+        } else {
+          ticket.status = 'new'
+        }
+        var url = `http://10.19.226.116:3030/tickets/${ticket._id}`
+        console.log(url)
+        axios.patch(url, {
+          status: ticket.status
+        })
+        .then(response => {
+          // JSON responses are automatically parsed.
+          console.log(`set test answser:${ticket._id} ${response}`)
+        })
+        .catch(e => {
+          this.errors_message.push(e)
+          console.log(e)
+        })
+      },
+      setBest (answer) {
+        answer.isbest = 1
+        var url = `http://10.19.226.116:3030/answers/${answer._id}`
+        console.log(url)
+        axios.patch(url, {
+          'isbest': 1
+        })
+        .then(response => {
+          // JSON responses are automatically parsed.
+          console.log(`set test answser:${answer._id} ${response}`)
+        })
+        .catch(e => {
+          this.errors_message.push(e)
+          console.log(e)
+        })
+      },
+      editTicket (ticket) {
+      },
+      submitTicket (ticket) {
+        var url = `http://10.19.226.116:3030/tickets/${ticket._id}`
+        console.log(url)
+        axios.patch(url, {
+          'description': ticket.description
+        })
+        .then(response => {
+          // JSON responses are automatically parsed.
+          console.log(`add comments to the answser:${ticket._id} ${response}`)
+        })
+        .catch(e => {
+          this.errors_message.push(e)
+          console.log(e)
+        })
+      },
+      addComments (answer) {
+        var url = `http://10.19.226.116:3030/answers/${answer._id}`
+        console.log(url)
+        axios.patch(url, {
+          'comments': answer.comments
+        })
+        .then(response => {
+          // JSON responses are automatically parsed.
+          console.log(`add comments to the answser:${answer._id} ${response}`)
+        })
+        .catch(e => {
+          this.errors_message.push(e)
+          console.log(e)
+        })
+      },
+      getAnswers (tid) {
+        var url = `http://10.19.226.116:3030/answers?tid=${tid}`
+        console.log(url)
+        axios.get(url)
+        .then(response => {
+          // JSON responses are automatically parsed.
+          this.answers = response.data.data
+          console.log(`get answsers:${this.answers}`)
+          console.log(this.answers)
+        })
+        .catch(e => {
+          this.errors_message.push(e)
+          console.log(e)
+        })
       }
     },
     // Fetches posts when the component is created.
     created () {
-      axios.get(`http://10.19.226.116:3030/answers`)
-      // axios.get(`http://10.19.226.116:3030/tickets`)
+      axios.get(`http://10.19.226.116:3030/tickets`)
       .then(response => {
         // JSON responses are automatically parsed.
         this.posts = response.data.data
+        this.ticket = this.posts[1]
         console.log(this.posts)
+        console.log('ticket status', this.ticket)
+        this.getAnswers(this.ticket._id)
       })
       .catch(e => {
         this.errors_message.push(e)
@@ -111,5 +318,9 @@
   }
 </script>
 <style lang="scss">
+
+.badge {
+    min-width: 0;
+}
 
 </style>
