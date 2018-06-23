@@ -11,6 +11,7 @@ import dailytodo from './dailytodo'
 import dailysearch from './dailysearch'
 import createticket from './createticket'
 import newTicket from './newTicket'
+import addSubTicket from './addSubTicket'
 
 const state = {
   items: [
@@ -18,6 +19,7 @@ const state = {
     statistics,
     forms,
     newTicket,
+    addSubTicket,
     dailytodo,
     dailysearch,
     createticket,

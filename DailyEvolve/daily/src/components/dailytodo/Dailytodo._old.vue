@@ -2,8 +2,8 @@
   <div class="card">
     <div class="card-header">
       <div class="row">
-        <div class="col-sm-4">
-        <button class="btn-secondary" type="button"  @click="deleteMe">Del</button>
+        <div class="col-sm-7">
+        <button class="btn-primary" type="button"  @click="deleteMe">Delete</button>
         <button class="btn-secondary btn-xs" 
                 type="button"
                 @click="upvoteTicket(ticket)">
@@ -20,86 +20,101 @@
         <div class="col-sm-3">
         <button  class='btn-secondary btn-xs' @click="changeStatus(ticket)">{{ Action }}</span>
         </button>
+        <button class="btn-secondary" type="button" @click="editTicket(ticket)">Edit</button>
         </div>
       </div>
     </div>
     <div class="card-body">
         <h5 class="card-title">  {{ ticket.title }} </h5>
-        <hr>
-        <div class="row description">
-          <div class="col-sm-10">
-            <vue-markdown :source="ticket.description"></vue-markdown>
-          </div> 
+        <div>
+          <slider v-model="value" range></slider>
         </div>
-        <hr>
+        <Button type="primary" @click="modal1 = true">Display dialog box</Button>
+        <Modal
+            v-model="modal1"
+            title="Common Modal dialog box title"
+            @on-ok="ok"
+            @on-cancel="cancel">
+            <p>Content of dialog</p>
+            <p>Content of dialog</p>
+            <p>Content of dialog</p>
+        </Modal>
+
+
+        <div class="row description">
+          <div class="cl-sm-12">
+            <div>
+              <vue-markdown> {{ ticket.description }}</vue-markdown>
+            </div>
+          </div>
+        </div>
         <div class="row tag">
           <div class="col-sm-1">
             <button class="btn-secondary btn-xs" type="button">
               <span aria-hidden="true" class="glyphicon glyphicon-tags"></span>
             </button>
           </div>
-            <div class="col-sm-11">
-              {{ ticket.tags }}
-            </div>
-        </div>
-        <div class="row status">
-          <div class="col-sm-6">
-            <p> Assign: {{ ticket.assign }} </p>
+          <div class="col-sm-7">
+            {{ ticket.tags }}
           </div>
-          <div class="col-sm-6">
+          <div class="col-sm-2">
+            <p> Assign: {{ ticket.assgin }} </p>
+          </div>
+          <div class="col-sm-2">
             <p> Owner: {{ ticket.owner }} </p>
           </div>
         </div>
         <hr>
-        <Modal
-            v-model="editModal"
-            title=""
-            @on-ok="editTicket(ticket)"
-            @on-cancel="cancel">
-          <Form :model="formItem" :label-width="80" @submit.native.prevent="submit">
-              <FormItem label="Title">
-                  <Input v-model="ticket.title" placeholder="Enter something..."></Input>
-              </FormItem>
-              <FormItem label="Description">
-                  <Input v-model="ticket.description" type="textarea" :autosize="{minRows: 5,maxRows: 10}" placeholder="Enter something..."></Input>
-              </FormItem>
-              <FormItem label="Assign">
-                  <Row>
-                      <Col span="8">
-                          <Select v-model="ticket.assign">
-                              <Option value="lgw">lgw</Option>
-                              <Option value="zgg">zgg</Option>
-                              <Option value="googler">googler</Option>
-                          </Select>
-                      </Col>
-                      <Col span="6" style="text-align: center">Owner</Col>
-                      <Col span="8">
-                          <Select v-model="ticket.owner">
-                              <Option value="lgw">lgw</Option>
-                              <Option value="zgg">zgg</Option>
-                              <Option value="googler">googler</Option>
-                          </Select>
-                      </Col>
-                  </Row>
-              </FormItem>
-              <FormItem label="Tags">
-                  <Input v-model="ticket.tags" placeholder="Enter something..."></Input>
-              </FormItem>
-              <FormItem label="DueDate">
-                  <Row>
-                      <Col span="11">
-                          <DatePicker type="date" placeholder="Select date" v-model="ticket.dueDate"></DatePicker>
-                      </Col>
-                      <Col span="2" style="text-align: center">-</Col>
-                      <Col span="11">
-                          <TimePicker type="time" placeholder="Select time"></TimePicker>
-                      </Col>
-                  </Row>
-              </FormItem>
-          </Form>
-        </Modal>
-        <Button type="primary" @click="editModal = true">Edit</Button>
-        <router-link  :to="{name:'AddSubTicket', params:{parentTicket:ticket}}" tag="button">add Sub Ticket</router-link>
+        <button class="btn-secondary" @click="showLargeModal()">
+          {{'modal.large' | translate }}
+        </button>
+        <button class="btn-secondary" type="button">Add sub ticket</button>
+        <vuestic-modal 
+              :show.sync="show" 
+              v-bind:large="false" 
+              ref="largeModal" 
+              :okText="'modal.confirm' | translate"
+              :cancelText="'modal.cancel' | translate">
+            
+              <div slot="title">subticket </div>
+              <div class="row input-group mb-3">
+              <div class="input-group-prepend">
+                  <span> Title</span>
+              </div>
+              <input class="form-control" type="text" placeholder="ticket title" v-model="title">
+              </div>
+              <form @submit.prevent="submit">
+                  <label for="description">Description:</label>
+                  <div class="form-group">
+                      <textarea class="form-control" rows="5" id="description" v-model="description"></textarea>
+                  </div>
+
+                  <div class="row input-group mb-3">
+                      <div class="input-group-prepend">
+                          <span> Tags</span>
+                      </div>
+                      <input class="form-control" type="text" placeholder="ticket tags" v-model="tags">
+                  </div>
+
+                  <div class="row input-group mb-3">
+                      <div class="input-group-prepend">
+                          <span> Assign</span>
+                      </div>
+                      <input class="form-control" type="text" placeholder="googler" v-model="assign">
+                  </div>
+
+                  <div class="form-group">
+                      <button type="submit" class=" btn-success">submit</button>
+                  </div>
+              </form>
+              <div slot="footer">
+                  <div class="form-group">
+                      <button type="submit" class=" btn-success">submit</button>
+                  </div>
+
+              </div>
+        </vuestic-modal>
+        <router-link :to="{name: 'CreateTicket', params:{parentId:ticket._id}}">Add sub ticket</router-link>
         <div class="row children">
           <ul>
             <li v-for="ele of ticket.children"> {{ ele}} </li>
@@ -154,27 +169,28 @@
 <script>
   import axios from 'axios'
   import CreateTicket from '../Admin/createTicket'
-  import AddSubTicket from '../Admin/addSubTicket'
   import VueMarkdown from 'vue-markdown'
 
   export default {
-    name: 'OneTicket',
     data () {
       return {
-        formItem: {},
-        editModal: false,
+        modal1: false,
+        show: true,
         modalShow: false,
         posts: [],
+        tags: '',
         assign: '',
+        title: '',
+        description: '',
         ticket: Object,
         answers: [],
         errors_message: [],
+        value: [20, 50]
       }
     },
     components: {
       VueMarkdown,
-      CreateTicket,
-      AddSubTicket
+      CreateTicket
     },
     computed: {
       Action: function () {
@@ -186,19 +202,8 @@
       }
     },
     methods: {
-      editTicket (ticket) {
+      ok () {
         this.$Message.info('Clicked ok')
-        var url = `http://10.19.226.116:3030/tickets/${ticket._id}`
-        console.log(url)
-        axios.patch(url, ticket)
-        .then(response => {
-          // JSON responses are automatically parsed.
-          console.log(`upvote ticket:${ticket._id} ${response}`)
-        })
-        .catch(e => {
-          this.errors_message.push(e)
-          console.log(e)
-        })
       },
       cancel () {
         this.$Message.info('Clicked cancel')
@@ -322,6 +327,8 @@
           this.errors_message.push(e)
           console.log(e)
         })
+      },
+      editTicket (ticket) {
       },
       submitTicket (ticket) {
         var url = `http://10.19.226.116:3030/tickets/${ticket._id}`
