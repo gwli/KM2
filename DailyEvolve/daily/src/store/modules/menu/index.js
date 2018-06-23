@@ -10,12 +10,14 @@ import extra from './extra'
 import dailytodo from './dailytodo'
 import dailysearch from './dailysearch'
 import createticket from './createticket'
+import newTicket from './newTicket'
 
 const state = {
   items: [
     dashboard,
     statistics,
     forms,
+    newTicket,
     dailytodo,
     dailysearch,
     createticket,
@@ -24,7 +26,6 @@ const state = {
     extra,
     auth,
     maps
-
   ]
 }
 
@@ -39,7 +40,9 @@ const mutations = {
 }
 
 const actions = {
-  toggleExpandMenuItem ({commit}, payload) {
+  toggleExpandMenuItem ({
+    commit
+  }, payload) {
     commit(types.TOGGLE_EXPAND_MENU_ITEM, payload)
   }
 }
