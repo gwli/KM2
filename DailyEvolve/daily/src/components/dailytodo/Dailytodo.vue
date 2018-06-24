@@ -1,5 +1,5 @@
 <<template>
-    <Tree :data="ticketTree" ></Tree>
+  <Tree :data="ticketTree" :render="renderContent" ></Tree>
 </template>
 <script>
 import axios from 'axios'
@@ -21,6 +21,7 @@ function searchItem (id, tree) {
 
 function updateStatus (Tree) {
   if (Tree.children.length === 0) {
+    Tree.isGroup = false
     if (Tree.status === 'close') {
       Tree.close = 1
     } else {
@@ -28,19 +29,18 @@ function updateStatus (Tree) {
     }
     Tree.total = 1
     return
-  } 
+  }
 
   Tree.children.forEach(updateStatus)
-  
-  Tree.children.forEach( ele => {
+  Tree.children.forEach(ele => {
     Tree.open += ele.open
     Tree.close += ele.close
     Tree.total += ele.total
   })
 
   // the top is null, skip countting the top node
-  if (Tree.parent === "") {
-    return 
+  if (Tree._id === 'TOP') {
+    return
   }
   // add itself
   if (Tree.status === 'close') {
@@ -65,6 +65,7 @@ function genTicketTree (ticketlist, Tree) {
       vote: ticket.vote,
       open: 0,
       close: 0,
+      status: ticket.status,
       total: 0
     }
     console.log('tree leaf', temp)
@@ -81,7 +82,7 @@ function genTicketTree (ticketlist, Tree) {
 export default {
   data () {
     return {
-      ticketMap: {},
+      editModal: false,
       ticketlist: [],
       ticketTree: [
         {
@@ -94,12 +95,116 @@ export default {
           vote: 0,
           open: 0,
           close: 0,
+          status: 'new',
           total: 0
         }],
     }
   },
   methods: {
     renderContent (h, { root, node, data }) {
+      var buttons = []
+
+      if (data._id === 'TOP') {
+        buttons = [
+          h('Button',
+            {
+              props: Object.assign({}, this.buttonProps, {icon: 'ios-plus-empty', type: 'primary', size: 'small'}),
+              style: {marginRight: '8px'},
+              on: {click: () => { this.append(data) }}
+            }
+          )
+        ]
+      } else if (data.isGroup) {
+        buttons = [
+          h('Button',
+            {
+              props: Object.assign({}, this.buttonProps, {icon: 'ios-plus-empty', type: 'primary', size: 'small'}),
+              style: {marginRight: '8px'},
+              on: {click: () => { this.append(data) }}
+            }
+          ),
+          h('Button',
+            {
+              props: Object.assign({}, this.buttonProps, {icon: 'ios-compose', type: 'error', size: 'small'}),
+              style: {marginRight: '8px'},
+              on: {click: () => { this.rename(root, node, data) }}
+            }
+          ),
+          h('Button',
+            {
+              props: Object.assign({}, this.buttonProps, {icon: 'ios-minus-empty', type: 'error', size: 'small'}),
+              style: {marginRight: '8px'},
+              on: {click: () => { this.remove(root, node, data) }}
+            }
+          )
+        ]
+      } else {
+        buttons = [
+          h('Button',
+            {
+              props: Object.assign({}, this.buttonProps, {icon: 'ios-minus-empty', type: 'error', size: 'small'}),
+              style: {marginRight: '8px'},
+              on: {click: () => { this.remove(root, node, data) }}
+            }
+          )
+        ]
+      }
+
+      return h('span',
+        {
+          style: {
+            display: 'inline-block',
+            width: '100%'
+          },
+          'class': 'li-tree'
+        },
+        [
+          h('span',
+            {
+              // style: {margin: '4px 0px 4px 0px'}
+            },
+            [
+              h('Icon',
+                {
+                  props: {type: data.isGroup ? 'ios-folder-outline' : 'ios-paper-outline'},
+                  style: {marginRight: '8px'}
+                }
+              ),
+              [
+                h('Badge', {
+                  props: {count: data.vote, type: 'demo-badge-alone'},
+                }),
+                // h('router-link', {
+                //  props: {to: {name:'ticketTree', ticket: 'fafa'}},
+                //  style: {color: data.status === 'close' ? 'green' : 'red'}
+                // },
+                // data.title),
+                h('span', {
+                  style: {color: data.status === 'close' ? 'green' : 'red'}
+                },
+                data.title),
+                h('span', '('),
+                h('span', data.total + ','),
+                h('span', {style: {color: 'green'}}, data.close + ','),
+                h('span', {style: {color: 'red'}}, data.open),
+                h('span', ')')
+              ]
+            ]
+          ),
+          h('span',
+            {
+              style: {
+                display: 'inline-block',
+                float: 'right',
+                marginRight: '32px'
+              }
+            },
+            buttons
+          )
+        ]
+      )
+    },
+    cancel () {
     },
     append (data) {
       const children = data.children || []
@@ -116,16 +221,14 @@ export default {
       parent.children.splice(index, 1)
     }
   },
+  components: {
+  },
   created () {
     axios.get(`http://10.19.226.116:3030/tickets`)
     .then(response => {
       // JSON responses are automatically parsed.
       this.ticketlist = response.data.data
       console.log('ticketlist', this.ticketlist)
-      response.data.data.forEach(ele => {
-        this.ticketMap[ele._id] = ele
-      })
-      console.log('ticketmap', this.ticketMap)
       genTicketTree(this.ticketlist, this.ticketTree)
       console.log('ticketTree', this.ticketTree)
     })
