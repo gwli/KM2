@@ -111,6 +111,7 @@
           tags = this.formItem.tags + ',' + this.formItem.newtag
         }
         console.log(this.formItem)
+        var pTicket = this.$route.params.parentTicket
         axios.post('http://10.19.226.116:3030/tickets', {
           status: 'new',
           tags: tags,
@@ -123,7 +124,7 @@
           estimateEffort: 0,
           due_date: '',
           children: [],
-          parent: this.parentId,
+          parent: pTicket._id,
           created: currDate.toJSON()
         }).then(function (response) {
           console.log('created new ticket', response)
