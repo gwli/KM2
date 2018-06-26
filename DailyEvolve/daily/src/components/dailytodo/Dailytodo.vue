@@ -1,8 +1,17 @@
-<<template>
+<template>
+<div>
   <Tree :data="ticketTree" :render="renderContent" ></Tree>
+  <add-new-ticket
+      :modal="NewTicketModal"
+      :parentId="focusTicketId"
+      @modal-closed="modalClosed"
+      >
+    </add-new-ticket>
+</div>
 </template>
 <script>
 import axios from 'axios'
+import AddNewTicket from './AddNewTicket'
 function searchItem (id, tree) {
   var item = null
   for (var i = 0, ilen = tree.length; i < ilen; i++) {
@@ -82,7 +91,8 @@ function genTicketTree (ticketlist, Tree) {
 export default {
   data () {
     return {
-      editModal: false,
+      NewTicketModal: false,
+      focusTicketId: '',
       ticketlist: [],
       ticketTree: [
         {
@@ -114,13 +124,13 @@ export default {
             }
           )
         ]
-      } else if (data.isGroup) {
+      } else {
         buttons = [
           h('Button',
             {
               props: Object.assign({}, this.buttonProps, {icon: 'ios-plus-empty', type: 'primary', size: 'small'}),
               style: {marginRight: '8px'},
-              on: {click: () => { this.append(data) }}
+              on: {click: () => { this.addTicket(data._id) }}
             }
           ),
           h('Button',
@@ -130,16 +140,6 @@ export default {
               on: {click: () => { this.rename(root, node, data) }}
             }
           ),
-          h('Button',
-            {
-              props: Object.assign({}, this.buttonProps, {icon: 'ios-minus-empty', type: 'error', size: 'small'}),
-              style: {marginRight: '8px'},
-              on: {click: () => { this.remove(root, node, data) }}
-            }
-          )
-        ]
-      } else {
-        buttons = [
           h('Button',
             {
               props: Object.assign({}, this.buttonProps, {icon: 'ios-minus-empty', type: 'error', size: 'small'}),
@@ -219,9 +219,18 @@ export default {
       const parent = root.find(el => el.nodeKey === parentKey).node
       const index = parent.children.indexOf(data)
       parent.children.splice(index, 1)
-    }
+    },
+    addTicket (tid) {
+      console.log('add on', tid)
+      this.NewTicketModal = true
+      this.focusTicketId = tid
+    },
+    modalClosed (event) {
+      this.NewTicketModal = false
+    },
   },
   components: {
+    AddNewTicket,
   },
   created () {
     axios.get(`http://10.19.226.116:3030/tickets`)
