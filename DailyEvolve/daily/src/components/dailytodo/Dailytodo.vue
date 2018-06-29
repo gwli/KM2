@@ -174,11 +174,9 @@ export default {
                 h('Badge', {
                   props: {count: data.vote, type: 'demo-badge-alone'},
                 }),
-                // h('router-link', {
-                //  props: {to: {name:'ticketTree', ticket: 'fafa'}},
-                //  style: {color: data.status === 'close' ? 'green' : 'red'}
-                // },
-                // data.title),
+                h('a', {
+                  attrs: {href: 'javascript:window.open("http://www.gogole.com","mypoputitle","directories=0,titlebar=no,location=no,status=no,scrollbars=no,resizeable=no,width=400,height=400")'},
+                },  data.title + '+++'),
                 h('span', {
                   style: {color: data.status === 'close' ? 'green' : 'red'}
                 },
